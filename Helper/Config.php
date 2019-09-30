@@ -63,11 +63,13 @@ class Config
      */
     public function getConfiguration()
     {
-        if(isset($this->bugsnagConfig) && is_array($this->bugsnagConfig)) {
+        if ($this->config instanceof Configuration) {
+            return $this->config;
+        } else if(isset($this->bugsnagConfig) && is_array($this->bugsnagConfig)) {
             $apiKey = $this->getApiKey();
-            $releaseStage = $this->getReleaseStage();
             if ($apiKey) {
                 $this->config = new Configuration($apiKey);
+                $releaseStage = $this->getReleaseStage();
                 if ($releaseStage) {
                     $this->config->setReleaseStage($releaseStage);
                 }
