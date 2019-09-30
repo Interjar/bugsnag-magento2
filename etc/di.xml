@@ -17,6 +17,9 @@
         </arguments>
     </type>
     <type name="Magento\Framework\App\Http">
-        <plugin disabled="false" name="ExceptionCatcher" type="\Interjar\BugSnag\Plugin\ExceptionCatcher" sortOrder="0"/>
+        <plugin disabled="false" name="ExceptionCatcher" type="\Interjar\BugSnag\Plugin\HttpExceptionCatcher" sortOrder="0"/>
+    </type>
+    <type name="Magento\Framework\App\Cron">
+        <plugin disabled="false" name="Interjar_BugSnag_ExceptionCatcher" type="\Interjar\BugSnag\Plugin\CronExceptionCatcher" sortOrder="0" />
     </type>
 </config>

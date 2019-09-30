@@ -1,17 +1,19 @@
 <?php
 /**
- * Plugin to catch any uncaught exceptions
- *
  * @author Josh Carter <josh@interjar.com>
  */
+
 namespace Interjar\BugSnag\Plugin;
 
-use Magento\Framework\App\Http;
-use Magento\Framework\App\Bootstrap;
-use Interjar\BugSnag\Helper\Config;
 use Bugsnag\Client;
+use Interjar\BugSnag\Helper\Config;
 
-class ExceptionCatcher
+/**
+ * Base class for any ExceptionCatcher plugin.
+ *
+ * @package Interjar\BugSnag\Plugin
+ */
+abstract class BaseExceptionCatcherPlugin
 {
 
     /**
@@ -28,30 +30,22 @@ class ExceptionCatcher
      */
     public function __construct(
         Config $config
-    )
-    {
+    ) {
         $this->config = $config;
     }
 
     /**
-     * Catch any exceptions and notify an instance of \Bugsnag\Client
+     * Handle an exception and attempt to send it to Bugsnag.
      *
-     * @param Http $subject
-     * @param Bootstrap $bootstrap
      * @param \Exception $exception
-     *
-     * @return array
      */
-    public function beforeCatchException(
-        Http $subject,
-        Bootstrap $bootstrap,
+    protected function handleException(
         \Exception $exception
-    )
-    {
-        if($this->config->getConfiguration()) {
+    ) {
+        if ($this->config->getConfiguration()) {
             $client = new Client($this->config->getConfiguration(), null, Client::makeGuzzle());
             $client->notifyException($exception);
         }
-        return [$bootstrap, $exception];
     }
+
 }
