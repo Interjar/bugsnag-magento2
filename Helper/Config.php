@@ -9,6 +9,7 @@ namespace Interjar\BugSnag\Helper;
 use Bugsnag\Configuration;
 use Magento\Framework\App\DeploymentConfig\Reader;
 use Magento\Framework\Config\File\ConfigFilePool;
+use Magento\Framework\Filesystem\DirectoryList;
 
 class Config
 {
@@ -18,6 +19,13 @@ class Config
      * @var Reader
      */
     protected $deploymentConfig;
+
+    /**
+     * Magento's directory list used for fetching the root folder
+     *
+     * @var DirectoryList
+     */
+    protected $directoryList;
 
     /**
      * Full array of data from env.php
@@ -44,12 +52,18 @@ class Config
      * Config constructor
      *
      * @param Reader $deploymentConfig
+     * @param DirectoryList $directoryList
+     *
+     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws \Magento\Framework\Exception\RuntimeException
      */
     public function __construct(
-        Reader $deploymentConfig
+        Reader $deploymentConfig,
+        DirectoryList $directoryList
     )
     {
         $this->deploymentConfig = $deploymentConfig;
+        $this->directoryList = $directoryList;
         $this->env = $deploymentConfig->load(ConfigFilePool::APP_ENV);
         if(isset($this->env['bugsnag'])) {
             $this->bugsnagConfig = $this->env['bugsnag'];
@@ -71,6 +85,12 @@ class Config
                 if ($releaseStage) {
                     $this->config->setReleaseStage($releaseStage);
                 }
+
+                $projectRoot = $this->getProjectRoot();
+                if ($projectRoot) {
+                    $this->config->setProjectRoot($projectRoot);
+                }
+
                 return $this->config;
             }
         }
@@ -99,6 +119,26 @@ class Config
     {
         if (array_key_exists('release_stage', $this->bugsnagConfig)) {
             return $this->bugsnagConfig['release_stage'];
+        }
+        return false;
+    }
+
+    /**
+     * Get the project_root full path from env.php if existent.
+     *
+     * This can also be the boolval `true` if it should be resolved using Magento.
+     *
+     * @return bool|mixed|string
+     */
+    public function getProjectRoot() {
+        if (array_key_exists('project_root', $this->bugsnagConfig)) {
+            $projectRoot = $this->bugsnagConfig['project_root'];
+            if ($projectRoot === true) {
+                // The root should be resolved by Magento
+                return $this->directoryList->getRoot();
+            } else {
+                return $projectRoot;
+            }
         }
         return false;
     }

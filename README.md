@@ -42,7 +42,12 @@ More information on [Release Stage](https://docs.bugsnag.com/platforms/php/other
             ...
             'release_stage' => 'staging',
             ...
+            'project_root' => true || '/path/to/magento',
         ),
+
+You can set `project_root` to either `true` or the absolute path of the magento installation. 
+This will cause all paths in Bugsnag to be normalized across deployments and display the errors starting from the magento root.
+When the value is set to true it will use Magento's DirectoryList to resolve the root folder. [See documentation on docs.bugsnag.com.](https://docs.bugsnag.com/platforms/php/other/configuration-options/#project-root)
 
 # Support
 
